@@ -2,41 +2,41 @@ version: 2.1
 
 commands:
 
-  destroy-environment:
-    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-    parameters:
-      # Add parameter here   
-      workflow_id:
-        default: "${CIRCLE_WORKFLOW_ID:0:7}"
-        type: string
-
-    steps:
-      - run:
-          name: Destroy environments
-          when: on_fail
-          command: |
-            # Your code here
-            aws s3 rm s3://udapeople-<<parameters.workflow_id>> --recursive
-            aws cloudformation delete-stack --stack-name "udapeople-backend-<<parameters.workflow_id>>"
-            aws cloudformation delete-stack --stack-name "udapeople-frontend-<<parameters.workflow_id>>"
-            
   # destroy-environment:
   #   description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
   #   parameters:
-  #     # Add parameter here
+  #     # Add parameter here   
   #     workflow_id:
+  #       default: "${CIRCLE_WORKFLOW_ID:0:7}"
   #       type: string
+
   #   steps:
   #     - run:
   #         name: Destroy environments
   #         when: on_fail
   #         command: |
   #           # Your code here
-  #           aws cloudformation delete-stack \
-  #           --stack-name udapeople-backend-<<parameters.workflow_id>>
   #           aws s3 rm s3://udapeople-<<parameters.workflow_id>> --recursive
-  #           aws cloudformation delete-stack \
-  #           --stack-name udapeople-frontend-<<parameters.workflow_id>>
+  #           aws cloudformation delete-stack --stack-name "udapeople-backend-<<parameters.workflow_id>>"
+  #           aws cloudformation delete-stack --stack-name "udapeople-frontend-<<parameters.workflow_id>>"
+            
+  destroy-environment:
+    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+    parameters:
+      # Add parameter here
+      workflow_id:
+        type: string
+    steps:
+      - run:
+          name: Destroy environments
+          when: on_fail
+          command: |
+            # Your code here
+            aws cloudformation delete-stack \
+            --stack-name udapeople-backend-<<parameters.workflow_id>>
+            aws s3 rm s3://udapeople-<<parameters.workflow_id>> --recursive
+            aws cloudformation delete-stack \
+            --stack-name udapeople-frontend-<<parameters.workflow_id>>
 
 #   revert-migrations:
 #     description: Revert the last migration if successfully run in the current workflow.
@@ -166,52 +166,12 @@ jobs:
     docker:
       # Docker image here that supports AWS CLI
       - image: amazon/aws-cli
-    # steps:
-    #   # Checkout code from git
-    #   - checkout
-    #   - run: yum install tar gzip -y
-    #   - run:
-    #       name: Ensure back-end infrastructure exists
-    #       command: |
-    #         aws cloudformation deploy \
-    #           --template-file .circleci/files/backend.yml \
-    #           --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-    #           --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
-    #           --tags project=udapeople
-    #   - run:
-    #       name: Ensure front-end infrastructure exist
-    #       command: |
-    #         aws cloudformation deploy \
-    #           --template-file .circleci/files/frontend.yml \
-    #           --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
-    #           --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
-    #           --tags project=udapeople 
-    #   - run:
-    #       name: Add back-end ip to ansible inventory
-    #       command: |
-    #         # Your code here
-    #         aws ec2 describe-instances \
-    #         --query 'Reservations[*].Instances[*].PublicIpAddress' \
-    #         --filters Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7} \
-    #         --output text >> ~/project/.circleci/ansible/inventory.txt
-    #         cat ~/project/.circleci/ansible/inventory.txt
-    #   - persist_to_workspace:
-    #       root: ~/
-    #       paths:
-    #         - project/.circleci/ansible/inventory.txt
-    #   # Here's where you will add some code to rollback on failure
-    #   - destroy-environment:
-    #       workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-          
     steps:
       # Checkout code from git
       - checkout
+      - run: yum install tar gzip -y
       - run:
-          name: Install dependencies
-          command: |
-            yum install -y tar gzip
-      - run:
-          name: Ensure backend infrastructure exists
+          name: Ensure back-end infrastructure exists
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
@@ -219,34 +179,74 @@ jobs:
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
               --tags project=udapeople
       - run:
-          name: Ensure frontend infrastructure exist
+          name: Ensure front-end infrastructure exist
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
               --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
-              --tags project=udapeople
+              --tags project=udapeople 
       - run:
-          name: Add the EC2 instance IP to the Ansible inventory
+          name: Add back-end ip to ansible inventory
           command: |
-          
             # Your code here
-            cd .circleci/ansible
-            cat inventory.txt
             aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
-            --output text --filter Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7} >> inventory.txt
-            cat inventory.txt
-            #  export BACKEND_IP=$(aws ec2 describe-instances \
-            # --query 'Reservations[*].Instances[*].PublicIpAddress' \
-            # --filter Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7} \
-            # --output text 
-            # )
-            # echo ${BACKEND_IP}
+            --filters Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7} \
+            --output text >> ~/project/.circleci/ansible/inventory.txt
+            cat ~/project/.circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
+      # Here's where you will add some code to rollback on failure
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+          
+    # steps:
+    #   # Checkout code from git
+    #   - checkout
+    #   - run:
+    #       name: Install dependencies
+    #       command: |
+    #         yum install -y tar gzip
+    #   - run:
+    #       name: Ensure backend infrastructure exists
+    #       command: |
+    #         aws cloudformation deploy \
+    #           --template-file .circleci/files/backend.yml \
+    #           --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+    #           --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
+    #           --tags project=udapeople
+    #   - run:
+    #       name: Ensure frontend infrastructure exist
+    #       command: |
+    #         aws cloudformation deploy \
+    #           --template-file .circleci/files/frontend.yml \
+    #           --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
+    #           --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
+    #           --tags project=udapeople
+    #   - run:
+    #       name: Add the EC2 instance IP to the Ansible inventory
+    #       command: |
+          
+    #         # Your code here
+    #         cd .circleci/ansible
+    #         cat inventory.txt
+    #         aws ec2 describe-instances \
+    #         --query 'Reservations[*].Instances[*].PublicIpAddress' \
+    #         --output text --filter Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7} >> inventory.txt
+    #         cat inventory.txt
+    #         #  export BACKEND_IP=$(aws ec2 describe-instances \
+    #         # --query 'Reservations[*].Instances[*].PublicIpAddress' \
+    #         # --filter Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7} \
+    #         # --output text 
+    #         # )
+    #         # echo ${BACKEND_IP}
+    #   - persist_to_workspace:
+    #       root: ~/
+    #       paths:
+    #         - project/.circleci/ansible/inventory.txt
 
 #   configure-infrastructure:
 #     docker:
