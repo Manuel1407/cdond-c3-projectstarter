@@ -418,15 +418,14 @@ jobs:
             --query "Reservations[*].Instances[*].[PublicIpAddress]" \
             --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
             --output text)
+            
+            export API_URL=http://${BACKEND_IP}:3030
+            
             echo ${BACKEND_IP}
             
-            export BACKEND=$(echo $BACKEND_IP | grep -o '[^ ]*$')
+            echo backend-${CIRCLE_WORKFLOW_ID:0:7}
+            echo ${API_URL}
             
-            echo $BACKEND
-            export API_URL="http://${BACKEND}:3030"
-            echo "API_URL=${API_URL}"
-            echo "Sleeping for 1 minute"
-            sleep 60
             if curl -v "${API_URL}/api/status" | grep "ok"
             then
               return 0
