@@ -7,7 +7,6 @@ commands:
     parameters:
       # Add parameter here   
       workflow_id:
-        # default: "${CIRCLE_WORKFLOW_ID:0:7}"
         type: string
 
     steps:
@@ -26,7 +25,6 @@ commands:
     parameters:
       # Add parameter here
       workflow_id:
-        # default: "${CIRCLE_WORKFLOW_ID:0:7}"
         type: string
         
     steps:
@@ -45,10 +43,6 @@ commands:
               npm run build
               npm run migrations:revert
             fi
-          #   npm install
-          # #  Add revert code here. You can find this in the Getting Started section.
-          #   npm run migrations:revert
-          # fi
             
 jobs:
   build-frontend:
@@ -215,7 +209,7 @@ jobs:
           name: Install dependencies
           command: |
             # Your code here
-            apk add --update --no-cache ansible tar gzip aws-cli openssh
+            apk add --update --no-cache ansible tar gzip aws-cli
       - run:
           name: Configure server
           command: |
@@ -287,8 +281,6 @@ jobs:
             echo "API_URL=${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
             cat frontend/.env
-      # - restore_cache:
-      #     keys: [frontend-build]
       - run:
           name: Deploy frontend objects
           command: |
@@ -318,8 +310,6 @@ jobs:
       # attach workspace
       - attach_workspace:
           at: ~/
-      # - restore_cache:
-      #     keys: [backend-build]
       - run:
           name: Install dependencies
           command: |
