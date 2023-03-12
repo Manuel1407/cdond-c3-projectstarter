@@ -209,7 +209,7 @@ jobs:
           name: Install dependencies
           command: |
             # Your code here
-            apk add --update --no-cache ansible tar gzip aws-cli
+            apk add --update --no-cache ansible tar gzip aws-cli openssh
       - run:
           name: Configure server
           command: |
