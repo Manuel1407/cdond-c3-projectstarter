@@ -1,5 +1,9 @@
-url 1: https://github.com/Manuel1407/cdond-c3-projectstarter
-url 2: http://udapeople-7b4fa9e.s3-website-us-east-1.amazonaws.com/
-url 3: https://d3mckph0ynei2q.cloudfront.net/#/employees
-url 4: http://ec2-3-228-8-191.compute-1.amazonaws.com:3030/api/status
-url 5: http://ec2-100-24-205-54.compute-1.amazonaws.com:9090/targets
+URL01: https://github.com/Manuel1407/cdond-c3-projectstarter
+
+URL02: http://udapeople-5bafa0a.s3-website-us-east-1.amazonaws.com
+
+URL03: https://d3mckph0ynei2q.cloudfront.net/#/employees
+
+URL04: http://ec2-3-219-242-31.compute-1.amazonaws.com:3030/api/status
+
+URL05: http://ec2-100-24-205-54.compute-1.amazonaws.com:9090/targets
